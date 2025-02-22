@@ -1,0 +1,136 @@
+Table Details.
+
+Below is a sample database schema for the EV Adoption and Charging Infrastructure Analytics project. The design includes key tables with relationships, along with an ER diagram that shows how these entities interact.
+
+---
+
+## SQL Server Tables & Schema
+
+### 1. Regions Table  
+Stores geographic and demographic information for each region.
+
+
+CREATE TABLE Regions (
+    RegionID INT PRIMARY KEY,
+    RegionName VARCHAR(100) NOT NULL,
+    Population INT,
+    MedianIncome DECIMAL(10,2)
+);
+
+### 2. Vehicles Table  
+Contains details about the electric vehicles.
+
+
+CREATE TABLE Vehicles (
+    VehicleID INT PRIMARY KEY,
+    Manufacturer VARCHAR(100) NOT NULL,
+    Model VARCHAR(100) NOT NULL,
+    Year INT,
+    EVType VARCHAR(50)  -- e.g., BEV, PHEV, etc.
+);
+
+
+### 3. EV_Registrations Table  
+Records registrations of vehicles in various regions.
+
+
+CREATE TABLE EV_Registrations (
+    RegistrationID INT PRIMARY KEY,
+    VehicleID INT NOT NULL,
+    RegionID INT NOT NULL,
+    RegistrationDate DATE,
+    CONSTRAINT FK_Vehicle FOREIGN KEY (VehicleID) REFERENCES Vehicles(VehicleID),
+    CONSTRAINT FK_Region_Reg FOREIGN KEY (RegionID) REFERENCES Regions(RegionID)
+);
+
+
+### 4. Charging_Stations Table  
+Holds information about EV charging stations.
+
+
+CREATE TABLE Charging_Stations (
+    StationID INT PRIMARY KEY,
+    StationName VARCHAR(100) NOT NULL,
+    RegionID INT NOT NULL,
+    Latitude DECIMAL(9,6),
+    Longitude DECIMAL(9,6),
+    Capacity INT,  -- number of charging ports
+    CONSTRAINT FK_Region_Station FOREIGN KEY (RegionID) REFERENCES Regions(RegionID)
+);
+
+
+### 5. Charging_Sessions Table  
+Tracks charging sessions by linking vehicles to charging stations.
+
+
+CREATE TABLE Charging_Sessions (
+    SessionID INT PRIMARY KEY,
+    StationID INT NOT NULL,
+    VehicleID INT NOT NULL,
+    SessionStart DATETIME,
+    SessionEnd DATETIME,
+    EnergyConsumed DECIMAL(10,2),  -- in kWh
+    CONSTRAINT FK_Station_Session FOREIGN KEY (StationID) REFERENCES Charging_Stations(StationID),
+    CONSTRAINT FK_Vehicle_Session FOREIGN KEY (VehicleID) REFERENCES Vehicles(VehicleID)
+);
+
+
+---
+
+## ER Diagram
+
+Below is a textual ER diagram in Mermaid syntax which visualizes the relationships between the tables:
+
+
+erDiagram
+    REGIONS {
+        int RegionID PK
+        string RegionName
+        int Population
+        decimal MedianIncome
+    }
+    VEHICLES {
+        int VehicleID PK
+        string Manufacturer
+        string Model
+        int Year
+        string EVType
+    }
+    EV_REGISTRATIONS {
+        int RegistrationID PK
+        int VehicleID FK
+        int RegionID FK
+        date RegistrationDate
+    }
+    CHARGING_STATIONS {
+        int StationID PK
+        string StationName
+        int RegionID FK
+        decimal Latitude
+        decimal Longitude
+        int Capacity
+    }
+    CHARGING_SESSIONS {
+        int SessionID PK
+        int StationID FK
+        int VehicleID FK
+        datetime SessionStart
+        datetime SessionEnd
+        decimal EnergyConsumed
+    }
+
+    REGIONS ||--o{ EV_REGISTRATIONS : "hosts"
+    VEHICLES ||--o{ EV_REGISTRATIONS : "registers"
+    REGIONS ||--o{ CHARGING_STATIONS : "has"
+    CHARGING_STATIONS ||--o{ CHARGING_SESSIONS : "serves"
+    VEHICLES ||--o{ CHARGING_SESSIONS : "uses"
+
+
+### Explanation of Relationships
+- **Regions to EV_Registrations:** Each region can have many EV registrations.
+- **Vehicles to EV_Registrations:** Each vehicle (or its registration record) is linked to a specific region.
+- **Regions to Charging_Stations:** Each region may have multiple charging stations.
+- **Charging_Stations to Charging_Sessions:** A charging station can host many charging sessions.
+- **Vehicles to Charging_Sessions:** Each vehicle may participate in multiple charging sessions.
+
+This schema sets a solid foundation for performing in-depth analytics with SQL Server SSMS and visualizing results in Power BI. You can extend this design with additional attributes or tables (e.g., an Owners table) as needed for your project.
