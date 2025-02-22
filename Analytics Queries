@@ -6,7 +6,6 @@ Below are several example queries that join your tables and use analytical funct
 
 This query joins **Charging_Sessions** with **Charging_Stations** and **Regions** to calculate the total and average energy consumed per region. It gives you a sense of how much charging is happening in each area.
 
-```sql
 SELECT 
     r.RegionName,
     COUNT(cs.SessionID) AS SessionCount,
@@ -16,7 +15,7 @@ FROM Charging_Sessions cs
 JOIN Charging_Stations st ON cs.StationID = st.StationID
 JOIN Regions r ON st.RegionID = r.RegionID
 GROUP BY r.RegionName;
-```
+
 
 ---
 
@@ -24,7 +23,7 @@ GROUP BY r.RegionName;
 
 This query aggregates EV registrations by month and uses a window function to compute the cumulative total over time. This can help you visualize trends in EV adoption.
 
-```sql
+
 WITH MonthlyRegistrations AS (
     SELECT 
         DATEFROMPARTS(YEAR(RegistrationDate), MONTH(RegistrationDate), 1) AS RegMonth,
@@ -38,7 +37,7 @@ SELECT
     SUM(RegistrationsCount) OVER (ORDER BY RegMonth) AS CumulativeRegistrations
 FROM MonthlyRegistrations
 ORDER BY RegMonth;
-```
+
 
 ---
 
@@ -46,7 +45,7 @@ ORDER BY RegMonth;
 
 This query ranks vehicles based on the number of charging sessions. It joins **Vehicles** with **Charging_Sessions**, groups by vehicle details, and uses the `RANK()` function to rank vehicles by session count.
 
-```sql
+
 SELECT 
     v.VehicleID,
     v.Manufacturer,
@@ -57,7 +56,7 @@ FROM Vehicles v
 LEFT JOIN Charging_Sessions cs ON v.VehicleID = cs.VehicleID
 GROUP BY v.VehicleID, v.Manufacturer, v.Model
 ORDER BY RankBySessions;
-```
+
 
 ---
 
@@ -65,7 +64,7 @@ ORDER BY RankBySessions;
 
 This query calculates the duration of each charging session (in minutes) and then computes the average session duration per charging station using a window function. This helps identify how long sessions typically last at each station.
 
-```sql
+
 SELECT 
     st.StationName,
     cs.SessionID,
@@ -74,7 +73,7 @@ SELECT
 FROM Charging_Sessions cs
 JOIN Charging_Stations st ON cs.StationID = st.StationID
 ORDER BY st.StationName, cs.SessionID;
-```
+
 
 ---
 
@@ -82,7 +81,7 @@ ORDER BY st.StationName, cs.SessionID;
 
 This query provides a high-level view of regional utilization by comparing the number of registered EVs to the number of charging sessions. It joins **Regions** with **EV_Registrations** and **Charging_Stations** (and then to **Charging_Sessions**) to calculate a ratio that might help you understand usage patterns across regions.
 
-```sql
+
 SELECT 
     r.RegionName,
     COUNT(DISTINCT er.VehicleID) AS RegisteredVehicles,
@@ -96,6 +95,6 @@ LEFT JOIN EV_Registrations er ON r.RegionID = er.RegionID
 LEFT JOIN Charging_Stations st ON r.RegionID = st.RegionID
 LEFT JOIN Charging_Sessions cs ON st.StationID = cs.StationID
 GROUP BY r.RegionName;
-```
+
 
 ---
