@@ -1,0 +1,21 @@
+Data Architecture & Workflow
+Data Collection & Integration:
+
+Import data from CSV files, APIs, or external databases into SQL Server.
+Use SSMS to create a relational database structure that supports data warehousing needs.
+Data Transformation:
+
+Cleanse and normalize the data using SQL queries and stored procedures.
+Develop ETL (Extract, Transform, Load) processes to regularly update the data.
+Data Analysis & Querying:
+
+Write complex SQL queries to calculate key metrics such as regional adoption rates, average charging station usage, and time-series analysis of trends.
+Aggregate data to create summary tables that feed into Power BI.
+Visualization with Power BI:
+
+Connect Power BI directly to the SQL Server database.
+Design interactive dashboards featuring:
+Overview Dashboard: Displays overall EV adoption and charging usage metrics.
+Regional Analysis: Maps and charts highlighting geographic differences.
+Time-Series Analysis: Trends over months/years showing peak usage periods.
+Interactive Filters: Allowing users to segment data by region, time period, vehicle type, etc.
