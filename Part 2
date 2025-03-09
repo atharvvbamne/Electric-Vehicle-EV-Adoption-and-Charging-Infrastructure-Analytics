@@ -56,3 +56,19 @@ JOIN Charging_Stations cs ON s.StationID = cs.StationID
 GROUP BY cs.StationName, cs.Capacity
 ORDER BY AvgChargingTime DESC;
 
+
+--SQL Query to Identify Off-Peak Charging Patterns
+
+
+SELECT 
+    CASE 
+       WHEN DATEPART(HOUR, SessionStart) BETWEEN 22 AND 6 THEN 'Off-Peak'
+       ELSE 'Peak' 
+    END AS ChargingPeriod,
+    COUNT(SessionID) AS TotalSessions
+FROM Charging_Sessions
+GROUP BY 
+    CASE 
+       WHEN DATEPART(HOUR, SessionStart) BETWEEN 22 AND 6 THEN 'Off-Peak'
+       ELSE 'Peak' 
+    END;
