@@ -1,0 +1,58 @@
+--SQL Query to Compute Yearly Growth Rate:
+
+WITH YearlyCounts AS (
+    SELECT YEAR(RegistrationDate) AS Year, COUNT(*) AS TotalEVs
+    FROM EV_Registrations
+    GROUP BY YEAR(RegistrationDate)
+)
+SELECT Year, TotalEVs,
+       LAG(TotalEVs) OVER (ORDER BY Year) AS PrevYearEVs,
+       ROUND((TotalEVs - LAG(TotalEVs) OVER (ORDER BY Year)) * 100.0 / 
+             LAG(TotalEVs) OVER (ORDER BY Year), 2) AS GrowthRate
+FROM YearlyCounts;
+
+
+
+--SQL Query to Analyze EV Market Share by Region
+
+
+SELECT r.RegionName, COUNT(er.RegistrationID) AS TotalEVs,
+       (COUNT(er.RegistrationID) * 100.0 / SUM(COUNT(er.RegistrationID)) 
+        OVER()) AS MarketShare
+FROM EV_Registrations er
+JOIN Regions r ON er.RegionID = r.RegionID
+GROUP BY r.RegionName;
+
+--SQL Query to Find Charging Station Availability Per 1,000 EVs in Each Region\
+
+SELECT r.RegionName, 
+       COUNT(cs.StationID) AS TotalStations,
+       COUNT(er.RegistrationID) AS TotalEVs,
+       ROUND(COUNT(cs.StationID) * 1000.0 / NULLIF(COUNT(er.RegistrationID), 0), 2) 
+       AS StationsPerThousandEVs
+FROM Charging_Stations cs
+JOIN Regions r ON cs.RegionID = r.RegionID
+LEFT JOIN EV_Registrations er ON er.RegionID = r.RegionID
+GROUP BY r.RegionName;
+
+
+--SQL Query to Analyze Peak Usage Time:
+
+SELECT DATEPART(HOUR, SessionStart) AS HourOfDay, 
+       COUNT(SessionID) AS TotalSessions
+FROM Charging_Sessions
+GROUP BY DATEPART(HOUR, SessionStart)
+ORDER BY TotalSessions DESC;
+
+
+
+--SQL Query to Compare Charging Types:
+
+SELECT cs.StationName, cs.Capacity, 
+       AVG(DATEDIFF(MINUTE, s.SessionStart, s.SessionEnd)) AS AvgChargingTime,
+       AVG(s.EnergyConsumed) AS AvgEnergyUsed
+FROM Charging_Sessions s
+JOIN Charging_Stations cs ON s.StationID = cs.StationID
+GROUP BY cs.StationName, cs.Capacity
+ORDER BY AvgChargingTime DESC;
+
